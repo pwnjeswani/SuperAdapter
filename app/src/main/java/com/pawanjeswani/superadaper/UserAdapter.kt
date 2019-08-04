@@ -7,6 +7,7 @@ import android.view.ViewGroup
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.pawanjeswani.superrvadapter.SuperAdapter
+import com.pawanjeswani.superrvadapter.model.DummyObject
 
 
 class UserAdapter : SuperAdapter {
@@ -61,7 +62,7 @@ class UserAdapter : SuperAdapter {
         when (holder.itemViewType) {
             0 -> {
                 val holderr = holder as UserViewHolder
-                var user = super.baseList[position] as User
+                var user = super.getItemOnPosition(position) as User
                 holderr.tv_user_id.text = user.id.toString()
                 holderr.tv_user_name.text = user.name
                 holderr.tv_user_phone.text = user.phoneNo.toString()
