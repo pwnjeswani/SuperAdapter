@@ -1,1 +1,1 @@
-include ':app', ':superrvadapter'
+include ':sample', ':superrvadapter'
