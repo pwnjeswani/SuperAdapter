@@ -6,10 +6,10 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pawanjeswani.superrvadapter.model.DummyObject
-import java.lang.Exception
-import androidx.annotation.LayoutRes
+import com.pawanjeswani.superrvadapter.exception.NotSupportedViewTypeException
 
 import java.util.ArrayList
+
 
 /**
  * Base class for adding view between real data elements
@@ -21,6 +21,7 @@ import java.util.ArrayList
  */
 
 abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperViewHolder<B>> :
+    ResourceAbstract,
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var baseList: MutableList<Any> = ArrayList()
@@ -34,11 +35,11 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
         this.createOtherItemList()
     }
 
-    protected fun addDataToPosition(position: Int,data : B) {
-        addDummyData(DummyObject(position,data))
+    protected fun addDataToPosition(position: Int, data: B) {
+        addDummyData(DummyObject(position, data))
     }
 
-    protected fun addDummyData(dummyObject: DummyObject<B>){
+    protected fun addDummyData(dummyObject: DummyObject<B>) {
         otherViewPositions.add(dummyObject)
     }
 
@@ -47,14 +48,6 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
         otherViewPositions.addAll(otherItemList)
     }
 
-
-/*
-
-    constructor(otherViewPositions: ArrayList<DummyObject>) {
-        otherViewPositions.sort()
-        this.otherViewPositions = otherViewPositions
-    }
-*/
 
     protected abstract fun createOtherItemList()
 
@@ -100,7 +93,7 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-       val layoutInflater = LayoutInflater.from(parent.context)
+        val layoutInflater = LayoutInflater.from(parent.context)
 
         return when (viewType) {
             0 -> onCreateViewHolderBetweenElements(
@@ -110,35 +103,51 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
                     false
                 )
             )
-            -1 -> onCreateRealViewHolder(layoutInflater.inflate(realViewItemResLayout, parent, false))
-            else -> throw Exception("Not support view type exception")
+            -1 -> onCreateRealViewHolder(
+                layoutInflater.inflate(
+                    realViewItemResLayout,
+                    parent,
+                    false
+                )
+            )
+            else -> throw NotSupportedViewTypeException("Not support view type exception")
         }
     }
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        if (getItemViewType(position) == 0 && baseList[position] is DummyObject<*>) {
-            val data = baseList[position] as DummyObject<B>
-            onBindOtherViewHolder(holder as BHolder, data = data.data)
+        if (getItemViewType(position) == 0) {
+            if (baseList[position] is DummyObject<*>) {
+                val data = genericCastOrNull<DummyObject<B>>(baseList[position])
+                data?.data?.let { genericCastOrNull<SuperViewHolder<B>>(holder)?.bind(data = it) }
+            }
         } else {
-            if (getItemViewType(position) == -1)
-                onBindRealViewHolder(holder as RHolder, baseList[position] as R)
+            if (getItemViewType(position) == -1) {
+                @Suppress("UNCHECKED_CAST") val data = baseList[position] as R
+                genericCastOrNull<SuperViewHolder<R>>(holder)?.bind(data = data)
+            }
         }
     }
 
+    /**
+     * For creating view holder for views between elements from
+     * @param view
+     * And return the view holder
+     */
     abstract fun onCreateViewHolderBetweenElements(view: View): BHolder
 
+    /**
+     * For creating view holder for real view  from
+     * @param view
+     * And return the view holder
+     */
     abstract fun onCreateRealViewHolder(view: View): RHolder
 
-
-    @get:LayoutRes
-    abstract val realViewItemResLayout: Int
-
-    @get:LayoutRes
-    abstract val itemBetweenElementsResLayout: Int
-
-    abstract fun onBindOtherViewHolder(holder: BHolder, data: B)
-
-    abstract fun onBindRealViewHolder(holder: RHolder, data: R)
+    /**
+     * for generic type casting (safe cast)
+     */
+    private inline fun <reified T> genericCastOrNull(anything: Any): T? {
+        return anything as? T
+    }
 
 
 }

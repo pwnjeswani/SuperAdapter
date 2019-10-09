@@ -4,19 +4,11 @@ import android.view.View
 import android.widget.TextView
 import com.pawanjeswani.superrvadapter.SuperViewHolder
 import com.pawanjeswani.superrvadapter.SuperAdapter
-import com.pawanjeswani.superrvadapter.model.DummyObject
 
 
 class UserAdapter :
     SuperAdapter<User, UserAdapter.UserViewHolder, Ads, UserAdapter.AdViewHolder>() {
 
-    override fun onBindOtherViewHolder(holder: AdViewHolder, data: Ads) {
-        holder.bind(data)
-    }
-
-    override fun onBindRealViewHolder(holder: UserViewHolder, data: User) {
-        holder.bind(data)
-    }
 
     override fun onCreateViewHolderBetweenElements(view: View): AdViewHolder = AdViewHolder(view)
 

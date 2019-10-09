@@ -1,8 +1,7 @@
 package com.pawanjeswani.superrvadapter.model
 
 
-
-class DummyObject<T>(val position:Int, override val data: T) : Comparable<DummyObject<T>>, DataForOther<T>() {
+class DummyObject<T>(val position: Int, val data: T) : Comparable<DummyObject<T>> {
 
     override fun compareTo(other: DummyObject<T>): Int {
         //let's sort the object based on position in ascending order
