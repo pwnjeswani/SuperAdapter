@@ -2,7 +2,6 @@ package com.pawanjeswani.superrvadapter
 
 
 import android.view.LayoutInflater
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.pawanjeswani.superrvadapter.model.DummyObject
@@ -21,7 +20,7 @@ import java.util.ArrayList
  */
 
 abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperViewHolder<B>> :
-    ResourceAbstract,
+    ResourceAbstract, BinderAbstract<RHolder, BHolder>,
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private var baseList: MutableList<Any> = ArrayList()
@@ -48,8 +47,6 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
         otherViewPositions.addAll(otherItemList)
     }
 
-
-    protected abstract fun createOtherItemList()
 
     override fun getItemCount(): Int {
         return baseList.size
@@ -128,23 +125,7 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
         }
     }
 
-    /**
-     * For creating view holder for views between elements from
-     * @param view
-     * And return the view holder
-     */
-    abstract fun onCreateViewHolderBetweenElements(view: View): BHolder
 
-    /**
-     * For creating view holder for real view  from
-     * @param view
-     * And return the view holder
-     */
-    abstract fun onCreateRealViewHolder(view: View): RHolder
-
-    /**
-     * for generic type casting (safe cast)
-     */
     private inline fun <reified T> genericCastOrNull(anything: Any): T? {
         return anything as? T
     }
