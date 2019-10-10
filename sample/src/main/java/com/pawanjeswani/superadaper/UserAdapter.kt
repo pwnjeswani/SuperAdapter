@@ -1,36 +1,25 @@
 package com.pawanjeswani.superadaper
 
-import android.content.Context
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
-import androidx.recyclerview.widget.RecyclerView
+import com.pawanjeswani.superrvadapter.SuperViewHolder
 import com.pawanjeswani.superrvadapter.SuperAdapter
-import com.pawanjeswani.superrvadapter.model.DummyObject
 
 
-class UserAdapter : SuperAdapter {
+class UserAdapter :
+    SuperAdapter<User, UserAdapter.UserViewHolder, Ads, UserAdapter.AdViewHolder>() {
 
-    constructor(context: Context){
-        createOtherItemList()
-    }
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
-        when (viewType) {
-            0 -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.user_item_view, parent, false)
-                return UserViewHolder(view)
+    override fun onCreateViewHolderBetweenElements(view: View): AdViewHolder = AdViewHolder(view)
 
-            }
-            1 -> {
-                val view = LayoutInflater.from(parent.context).inflate(R.layout.ad_item_view, parent, false)
-                return AdViewHolder(view)
-            }
-        }
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.user_item_view, parent, false)
-        return UserViewHolder(view)
-    }
+    override fun onCreateRealViewHolder(view: View): UserViewHolder = UserViewHolder(view)
+
+    override val realViewItemResLayout: Int
+        get() = R.layout.user_item_view
+
+    override val itemBetweenElementsResLayout: Int
+        get() = R.layout.ad_item_view
+
 
     fun setUserList(userList: ArrayList<User>) {
         super.setBaseList(userList)
@@ -38,53 +27,38 @@ class UserAdapter : SuperAdapter {
 
     }
 
-    override fun getItemViewType(position: Int): Int {
-        val itemViewType = super.getItemViewType(position)
-        return if (itemViewType != -1) {
-            itemViewType
-        } else {
-            0
-        }
-    }
 
     override fun createOtherItemList() {
-        var dummyObject = DummyObject(1, 1)
-        var dummyObject2 = DummyObject(1, 3)
-        var dummyObject3 = DummyObject(1, 5)
-        var dummyObject4 = DummyObject(1, 7)
-        super.otherViewPositions.add(dummyObject)
-        super.otherViewPositions.add(dummyObject2)
-        super.otherViewPositions.add(dummyObject3)
-        super.otherViewPositions.add(dummyObject4)
-    }
-
-    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
-        when (holder.itemViewType) {
-            0 -> {
-                val holderr = holder as UserViewHolder
-                var user = super.getItemOnPosition(position) as User
-                holderr.tv_user_id.text = user.id.toString()
-                holderr.tv_user_name.text = user.name
-                holderr.tv_user_phone.text = user.phoneNo.toString()
-
-            }
-            1 -> {
-
-            }
-        }
+        getSuperViewAdder().addDataToPosition(position = 1, data = Ads("Test with position 1"))
+        getSuperViewAdder().addDataToPosition(position = 3, data = Ads("Test with position 3"))
+        getSuperViewAdder().addDataToPosition(position = 5, data = Ads("Test with position 5"))
+        getSuperViewAdder().addDataToPosition(position = 7, data = Ads("Test with position 7"))
     }
 
 
-    class UserViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class UserViewHolder(itemView: View) : SuperViewHolder<User>(itemView) {
 
         internal var tv_user_name: TextView = itemView.findViewById(R.id.tv_user_name)
         internal var tv_user_id: TextView = itemView.findViewById(R.id.tv_user_id)
         internal var tv_user_phone: TextView = itemView.findViewById(R.id.tv_phone_no)
 
+        override fun bind(data: User) {
+            tv_user_id.text = data.id.toString()
+            tv_user_name.text = data.name
+            tv_user_phone.text = data.phoneNo.toString()
+
+        }
+
+
     }
 
-    class AdViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class AdViewHolder(itemView: View) : SuperViewHolder<Ads>(itemView) {
         internal var tv_user_id: TextView = itemView.findViewById(R.id.tv_user_id)
+
+        override fun bind(data: Ads) {
+            tv_user_id.text = data.name
+        }
+
     }
 
 }
