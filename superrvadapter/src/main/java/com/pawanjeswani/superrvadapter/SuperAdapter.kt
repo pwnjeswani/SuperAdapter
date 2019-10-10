@@ -7,7 +7,6 @@ import androidx.recyclerview.widget.RecyclerView
 import com.pawanjeswani.superrvadapter.model.DummyObject
 import com.pawanjeswani.superrvadapter.exception.NotSupportedViewTypeException
 
-import java.util.ArrayList
 
 
 /**
@@ -23,37 +22,24 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
     ResourceAbstract, BinderAbstract<RHolder, BHolder>,
     RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private var baseList: MutableList<Any> = ArrayList()
-    private var otherViewPositions: MutableList<DummyObject<B>> = ArrayList()
-    private var resetData = false
-
-    private var lastSearchedIndex = 0
+    private val dummyToPosition: SuperViewAdder<B> = SuperViewAdder()
+    private val superBaseList: SuperBaseList<B> = SuperBaseList(superViewAdder = dummyToPosition)
 
 
     init {
         this.createOtherItemList()
     }
 
-    protected fun addDataToPosition(position: Int, data: B) {
-        addDummyData(DummyObject(position, data))
-    }
+    protected fun setBaseList(data: List<Any>) = superBaseList.setBaseList(data)
 
-    protected fun addDummyData(dummyObject: DummyObject<B>) {
-        otherViewPositions.add(dummyObject)
-    }
-
-    protected fun addAllOtherDataList(otherItemList: ArrayList<DummyObject<B>>) {
-        otherItemList.sort()
-        otherViewPositions.addAll(otherItemList)
-    }
-
+    protected fun getSuperViewAdder(): SuperViewAdder<B> = dummyToPosition
 
     override fun getItemCount(): Int {
-        return baseList.size
+        return superBaseList.getBaseList().size
     }
 
     override fun getItemViewType(position: Int): Int {
-        return if (otherViewPositions.size > 0 && baseList.size > 0 && baseList[position] is DummyObject<*>)
+        return if (dummyToPosition.getOtherViewPositions().size > 0 && superBaseList.getBaseList().size > 0 && superBaseList.getBaseList()[position] is DummyObject<*>)
             0
         else {
 
@@ -62,32 +48,9 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
     }
 
     protected fun getItemOnPosition(position: Int): Any {
-        return baseList[position]
+        return superBaseList.getBaseList()[position]
     }
 
-    protected fun setBaseList(baseList: List<Any>) {
-        if (resetData) {
-            this.baseList.clear()
-            resetData = false
-            this.lastSearchedIndex = 0
-        }
-        this.baseList.addAll(baseList)
-        checkItemToBeInserted()
-
-    }
-
-    private fun checkItemToBeInserted() {
-        val localSearchIndex = this.lastSearchedIndex
-        for (i in localSearchIndex until otherViewPositions.size) {
-
-            if (otherViewPositions[i].position <= baseList.size) {
-
-                baseList.add(otherViewPositions[i].position, otherViewPositions[i])
-                this.lastSearchedIndex = i + 1
-
-            }
-        }
-    }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val layoutInflater = LayoutInflater.from(parent.context)
@@ -113,13 +76,13 @@ abstract class SuperAdapter<R, RHolder : SuperViewHolder<R>, B, BHolder : SuperV
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if (getItemViewType(position) == 0) {
-            if (baseList[position] is DummyObject<*>) {
-                val data = genericCastOrNull<DummyObject<B>>(baseList[position])
+            if (superBaseList.getBaseList()[position] is DummyObject<*>) {
+                val data = genericCastOrNull<DummyObject<B>>(superBaseList.getBaseList()[position])
                 data?.data?.let { genericCastOrNull<SuperViewHolder<B>>(holder)?.bind(data = it) }
             }
         } else {
             if (getItemViewType(position) == -1) {
-                @Suppress("UNCHECKED_CAST") val data = baseList[position] as R
+                @Suppress("UNCHECKED_CAST") val data = superBaseList.getBaseList()[position] as R
                 genericCastOrNull<SuperViewHolder<R>>(holder)?.bind(data = data)
             }
         }

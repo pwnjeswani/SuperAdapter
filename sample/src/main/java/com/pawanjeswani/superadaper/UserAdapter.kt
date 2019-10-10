@@ -29,10 +29,10 @@ class UserAdapter :
 
 
     override fun createOtherItemList() {
-        this.addDataToPosition(position = 1, data = Ads("Test with position 1"))
-        this.addDataToPosition(position = 3, data = Ads("Test with position 3"))
-        this.addDataToPosition(position = 5, data = Ads("Test with position 5"))
-        this.addDataToPosition(position = 7, data = Ads("Test with position 7"))
+        getSuperViewAdder().addDataToPosition(position = 1, data = Ads("Test with position 1"))
+        getSuperViewAdder().addDataToPosition(position = 3, data = Ads("Test with position 3"))
+        getSuperViewAdder().addDataToPosition(position = 5, data = Ads("Test with position 5"))
+        getSuperViewAdder().addDataToPosition(position = 7, data = Ads("Test with position 7"))
     }
 
 
